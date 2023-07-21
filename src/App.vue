@@ -3,39 +3,18 @@ import { Ref, computed, onMounted, ref } from "vue";
 import { addMarkerToMap, getCurrentGeolocation, updateMap, searchLocation } from "./utils.ts";
 import { Loader } from "@googlemaps/js-api-loader";
 
+/* Ref */
+const mapRef = ref<google.maps.Map>(); //TODO need ref?
+const locationInputRef: Ref<string> = ref("");
+
+/* Constant / Variable */
 let placesService: google.maps.places.PlacesService;
-
-const locationInput: Ref<string> = ref("");
-
-const getCurrentGelocationAndShowOnMap = async () => {
-  try {
-    if (!isMapInited.value) await initMap();
-
-    const position = await getCurrentGeolocation();
-    if (typeof position === "string") throw new Error(position);
-
-    const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
-    const mapOptions: google.maps.MapOptions = {
-      center: coords,
-      zoom: 12,
-    };
-
-    if (isMapInited.value) {
-      updateMap(mapRef.value!, mapOptions);
-      addMarkerToMap(mapRef.value!, coords);
-    }
-  } catch (error) {
-    alert(error);
-  }
-};
-
 const loader = new Loader({
   apiKey: import.meta.env.VITE_GOOGLE_MAP_API,
   version: "weekly",
 });
 
-const mapRef = ref<google.maps.Map>();
-
+/* Functions */
 const initMap = (
   options: google.maps.MapOptions = {
     center: {
@@ -62,11 +41,34 @@ const initMap = (
   });
 };
 
-const search = async () => {
-  if (!isMapInited.value) await initMap();
-  searchLocation(mapRef.value!, placesService, locationInput.value);
+const getCurrentGelocationAndShowOnMap = async () => {
+  try {
+    if (!isMapInited.value) await initMap();
+
+    const position = await getCurrentGeolocation();
+    if (typeof position === "string") throw new Error(position);
+
+    const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+    const mapOptions: google.maps.MapOptions = {
+      center: coords,
+      zoom: 12,
+    };
+
+    if (isMapInited.value) {
+      updateMap(mapRef.value!, mapOptions);
+      addMarkerToMap(mapRef.value!, coords);
+    }
+  } catch (error) {
+    alert(error);
+  }
 };
 
+const search = async () => {
+  if (!isMapInited.value) await initMap();
+  searchLocation(mapRef.value!, placesService, locationInputRef.value);
+};
+
+/* Computed */
 const isMapInited = computed(() => {
   return Boolean(mapRef && mapRef.value && placesService);
 });
@@ -79,10 +81,9 @@ onMounted(() => {});
     <button @click="getCurrentGelocationAndShowOnMap">Get current location</button>
   </div>
   <div>
-    <input type="text" v-model="locationInput" />
-    <button @click="search" :disabled="!locationInput">Search</button>
+    <input type="text" v-model="locationInputRef" />
+    <button @click="search" :disabled="!locationInputRef">Search</button>
   </div>
-  <div>Result for {{ locationInput }}</div>
+  <div>Result for {{ locationInputRef }}</div>
   <div id="map" class="w-full h-96"></div>
 </template>
-./utils.ts

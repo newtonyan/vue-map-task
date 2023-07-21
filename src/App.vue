@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import { Ref, onMounted, ref } from "vue";
-import { getCurrentGeolocation, updateMap } from "./utils.ts";
+import { Ref, computed, onMounted, ref } from "vue";
+import { addMarkerToMap, getCurrentGeolocation, updateMap, searchLocation } from "./utils.ts";
 import { Loader } from "@googlemaps/js-api-loader";
+
+let placesService: google.maps.places.PlacesService;
 
 const locationInput: Ref<string> = ref("");
 
-const searchLocation = () => {
-  console.log(locationInput.value);
-  loadMapToDOM();
-};
-
 const getCurrentGelocationAndShowOnMap = async () => {
   try {
-    loadMapToDOM();
+    if (!isMapInited.value) await initMap();
 
     const position = await getCurrentGeolocation();
     if (typeof position === "string") throw new Error(position);
@@ -23,9 +20,9 @@ const getCurrentGelocationAndShowOnMap = async () => {
       zoom: 12,
     };
 
-    if (map.value) {
-      updateMap(map.value, mapOptions);
-      addMarkerToMap(map.value, coords);
+    if (isMapInited.value) {
+      updateMap(mapRef.value!, mapOptions);
+      addMarkerToMap(mapRef.value!, coords);
     }
   } catch (error) {
     alert(error);
@@ -37,9 +34,9 @@ const loader = new Loader({
   version: "weekly",
 });
 
-const map = ref<google.maps.Map>();
+const mapRef = ref<google.maps.Map>();
 
-const loadMapToDOM = (
+const initMap = (
   options: google.maps.MapOptions = {
     center: {
       lat: 0,
@@ -48,19 +45,31 @@ const loadMapToDOM = (
     zoom: 4,
   }
 ) => {
-  console.log("Load google map to DOM");
-  // Load google map to DOM if map is not loaded yet
-  if (!map.value) {
-    loader.importLibrary("maps").then(({ Map }) => {
-      map.value = new Map(document.getElementById("map")!, options);
-    });
-  }
+  return new Promise<void>((resolve, reject) => {
+    if (isMapInited.value) resolve();
+    // Load google map to DOM if map is not loaded yet
+    loader.importLibrary("places");
+    loader
+      .importLibrary("maps")
+      .then(({ Map }) => {
+        mapRef.value = new Map(document.getElementById("map")!, options);
+        if (!placesService) placesService = new google.maps.places.PlacesService(mapRef.value);
+        resolve();
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
 };
 
-const addMarkerToMap = (map: google.maps.Map, position: google.maps.LatLngLiteral) => {
-  const marker = new google.maps.Marker({ position });
-  marker.setMap(map);
+const search = async () => {
+  if (!isMapInited.value) await initMap();
+  searchLocation(mapRef.value!, placesService, locationInput.value);
 };
+
+const isMapInited = computed(() => {
+  return Boolean(mapRef && mapRef.value && placesService);
+});
 
 onMounted(() => {});
 </script>
@@ -71,7 +80,7 @@ onMounted(() => {});
   </div>
   <div>
     <input type="text" v-model="locationInput" />
-    <button @click="searchLocation" :disabled="!locationInput">Search</button>
+    <button @click="search" :disabled="!locationInput">Search</button>
   </div>
   <div>Result for {{ locationInput }}</div>
   <div id="map" class="w-full h-96"></div>

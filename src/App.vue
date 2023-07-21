@@ -83,13 +83,14 @@ const search = async () => {
   } catch (error) {}
 };
 
-const deleteMapLocationData = (ids: Array<string>) => {
+const deleteMapLocationData = (ids: Array<string>, resetRowSelection: () => void) => {
   mapLocationDataRef.value = mapLocationDataRef.value.filter((data) => !ids.includes(data.id));
 
   for (let id of ids) {
     const marker = markers.get(id);
     if (marker) marker.setMap(null);
   }
+  resetRowSelection();
 };
 
 /* Computed */

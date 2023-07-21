@@ -67,7 +67,8 @@ const deleteRow = () => {
   console.log(table.getSelectedRowModel().rows);
   emit(
     "delete",
-    table.getSelectedRowModel().rows.map((row) => row.original.id)
+    table.getSelectedRowModel().rows.map((row) => row.original.id),
+    table.resetRowSelection
   );
 };
 </script>
@@ -89,8 +90,9 @@ const deleteRow = () => {
     </thead>
     <tbody>
       <tr v-for="row in table.getRowModel().rows" :key="row.id">
-        <td :key="row.id">
+        <td>
           <input
+            :key="row.original.id"
             type="checkbox"
             :checked="row.getIsSelected()"
             @change="(event) => row.toggleSelected((event.target as HTMLInputElement).checked)"

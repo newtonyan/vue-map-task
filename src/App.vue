@@ -127,6 +127,11 @@ onMounted(async () => {
   </div>
   <div>Result for {{ locationInputRef }}</div>
   <div id="map" class="w-full h-96"></div>
-  <ResultTable v-if="mapLocationDataRef.length" :data="mapLocationDataRef" @delete="deleteMapLocationData" />
+  <ResultTable
+    v-if="mapLocationDataRef.length && mapRef"
+    :data="mapLocationDataRef"
+    :map="mapRef"
+    @delete="deleteMapLocationData"
+  />
   <!-- <pre>{{ mapLocationDataRef }}</pre> -->
 </template>

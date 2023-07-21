@@ -8,9 +8,11 @@ import {
 } from "@tanstack/vue-table";
 import { MapLocation } from "../types";
 import { ref } from "vue";
+import { updateMap } from "../utils";
 
 const props = defineProps<{
   data: Array<MapLocation>;
+  map: google.maps.Map;
 }>();
 
 const emit = defineEmits(["delete"]);
@@ -89,7 +91,11 @@ const deleteRow = () => {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="row in table.getRowModel().rows" :key="row.id">
+      <tr
+        v-for="row in table.getRowModel().rows"
+        :key="row.id"
+        @click="updateMap(map, { center: row.original.position, zoom: 15 })"
+      >
         <td>
           <input
             :key="row.original.id"

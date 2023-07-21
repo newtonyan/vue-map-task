@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.2",
+    "@tanstack/vue-table": "^8.9.3",
     "vue": "^3.3.4"
   },
   "devDependencies": {

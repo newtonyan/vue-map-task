@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref } from "vue";
-import { addMarkerToMap, getCurrentGeolocation, updateMap, searchLocation } from "./utils.ts";
+import { Ref, computed, onMounted, reactive, ref, toRefs, watch, watchEffect } from "vue";
+import { addMarkerToMap, getCurrentGeolocation, updateMap, searchLocation, deleteMarker } from "./utils.ts";
 import { Loader } from "@googlemaps/js-api-loader";
+import ResultTable from "./components/ResultTable.vue";
+import { MapLocation } from "./types";
 
 /* Ref */
 const mapRef = ref<google.maps.Map>(); //TODO need ref?
@@ -13,6 +15,8 @@ const loader = new Loader({
   apiKey: import.meta.env.VITE_GOOGLE_MAP_API,
   version: "weekly",
 });
+
+const mapLocationDataRef = ref<Array<MapLocation>>([]);
 
 /* Functions */
 const initMap = (
@@ -51,12 +55,11 @@ const getCurrentGelocationAndShowOnMap = async () => {
     const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
     const mapOptions: google.maps.MapOptions = {
       center: coords,
-      zoom: 12,
+      zoom: 15,
     };
 
     if (isMapInited.value) {
       updateMap(mapRef.value!, mapOptions);
-      addMarkerToMap(mapRef.value!, coords);
     }
   } catch (error) {
     alert(error);
@@ -65,7 +68,27 @@ const getCurrentGelocationAndShowOnMap = async () => {
 
 const search = async () => {
   if (!isMapInited.value) await initMap();
-  searchLocation(mapRef.value!, placesService, locationInputRef.value);
+  try {
+    if (!isMapInited.value) return; // TODO show error
+    const mapLocation = await searchLocation(placesService, locationInputRef.value);
+    const marker = addMarkerToMap(mapRef.value!, mapLocation.position);
+    mapLocation.marker = marker;
+    updateMap(mapRef.value!, { center: mapLocation.position, zoom: 15 });
+    mapLocationDataRef.value = [mapLocation, ...mapLocationDataRef.value];
+  } catch (error) {}
+};
+
+const deleteMapLocationData = (ids: Array<string>) => {
+  const dataToBeDeleted = mapLocationDataRef.value.filter((data) => ids.includes(data.id));
+
+  for (let data of mapLocationDataRef.value) {
+    if (data.marker) {
+      console.log(data.marker);
+      data.marker.setMap(null);
+    }
+  }
+
+  mapLocationDataRef.value = mapLocationDataRef.value.filter((data) => !ids.includes(data.id));
 };
 
 /* Computed */
@@ -73,7 +96,23 @@ const isMapInited = computed(() => {
   return Boolean(mapRef && mapRef.value && placesService);
 });
 
-onMounted(() => {});
+onMounted(async () => {
+  await initMap();
+  const mapLocationDataLocalStorage = localStorage.getItem("mapLocationData");
+  if (mapLocationDataLocalStorage) {
+    mapLocationDataRef.value = JSON.parse(mapLocationDataLocalStorage) as Array<MapLocation>;
+    for (let location of mapLocationDataRef.value) {
+      const marker = addMarkerToMap(mapRef.value!, location.position);
+      location.marker = marker;
+    }
+  }
+  watchEffect(() => {
+    localStorage.setItem(
+      "mapLocationData",
+      JSON.stringify(mapLocationDataRef.value.map(({ marker, ...rest }) => rest))
+    );
+  });
+});
 </script>
 
 <template>
@@ -86,4 +125,6 @@ onMounted(() => {});
   </div>
   <div>Result for {{ locationInputRef }}</div>
   <div id="map" class="w-full h-96"></div>
+  <ResultTable v-if="mapLocationDataRef.length" :data="mapLocationDataRef" @delete="deleteMapLocationData" />
+  <!-- <pre>{{ mapLocationDataRef }}</pre> -->
 </template>

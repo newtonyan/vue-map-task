@@ -6,8 +6,9 @@ import ResultTable from "./components/ResultTable.vue";
 import { MapLocation } from "./types";
 
 /* Ref */
-const mapRef = ref<google.maps.Map>(); //TODO need ref?
+const mapRef = ref<google.maps.Map>();
 const locationInputRef: Ref<string> = ref("");
+const mapLocationDataRef = ref<Array<MapLocation>>([]);
 
 /* Constant / Variable */
 let placesService: google.maps.places.PlacesService;
@@ -16,7 +17,7 @@ const loader = new Loader({
   version: "weekly",
 });
 
-const mapLocationDataRef = ref<Array<MapLocation>>([]);
+let markers = new Map<string, google.maps.Marker>();
 
 /* Functions */
 const initMap = (
@@ -71,24 +72,19 @@ const search = async () => {
   try {
     if (!isMapInited.value) return; // TODO show error
     const mapLocation = await searchLocation(placesService, locationInputRef.value);
-    const marker = addMarkerToMap(mapRef.value!, mapLocation.position);
-    mapLocation.marker = marker;
+    addMarkerToMap(mapRef.value!, mapLocation, markers);
     updateMap(mapRef.value!, { center: mapLocation.position, zoom: 15 });
     mapLocationDataRef.value = [mapLocation, ...mapLocationDataRef.value];
   } catch (error) {}
 };
 
 const deleteMapLocationData = (ids: Array<string>) => {
-  const dataToBeDeleted = mapLocationDataRef.value.filter((data) => ids.includes(data.id));
-
-  for (let data of mapLocationDataRef.value) {
-    if (data.marker) {
-      console.log(data.marker);
-      data.marker.setMap(null);
-    }
-  }
-
   mapLocationDataRef.value = mapLocationDataRef.value.filter((data) => !ids.includes(data.id));
+
+  for (let id of ids) {
+    const marker = markers.get(id);
+    if (marker) marker.setMap(null);
+  }
 };
 
 /* Computed */
@@ -98,19 +94,19 @@ const isMapInited = computed(() => {
 
 onMounted(async () => {
   await initMap();
-  const mapLocationDataLocalStorage = localStorage.getItem("mapLocationData");
-  if (mapLocationDataLocalStorage) {
-    mapLocationDataRef.value = JSON.parse(mapLocationDataLocalStorage) as Array<MapLocation>;
+
+  // get map location data from local storage
+  const mapLocationDataLocal = localStorage.getItem("mapLocationData");
+  if (mapLocationDataLocal) {
+    mapLocationDataRef.value = JSON.parse(mapLocationDataLocal) as Array<MapLocation>;
     for (let location of mapLocationDataRef.value) {
-      const marker = addMarkerToMap(mapRef.value!, location.position);
-      location.marker = marker;
+      addMarkerToMap(mapRef.value!, location, markers);
     }
   }
+
+  // set watcher to save data to local storage whenever data changed
   watchEffect(() => {
-    localStorage.setItem(
-      "mapLocationData",
-      JSON.stringify(mapLocationDataRef.value.map(({ marker, ...rest }) => rest))
-    );
+    localStorage.setItem("mapLocationData", JSON.stringify(mapLocationDataRef.value));
   });
 });
 </script>

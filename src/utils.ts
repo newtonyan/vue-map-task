@@ -56,13 +56,12 @@ export const searchLocation = (placesService: google.maps.places.PlacesService, 
   });
 };
 
-export const addMarkerToMap = (map: google.maps.Map, position: google.maps.LatLngLiteral | google.maps.LatLng) => {
-  const marker = new google.maps.Marker({ position });
+export const addMarkerToMap = (
+  map: google.maps.Map,
+  mapLocation: MapLocation,
+  markers: Map<string, google.maps.Marker>
+) => {
+  const marker = new google.maps.Marker({ position: mapLocation.position });
   marker.setMap(map);
-  return marker;
-};
-
-export const deleteMarker = (marker: google.maps.Marker) => {
-  console.log("deleteMarker", marker);
-  marker.setMap(null);
+  markers.set(mapLocation.id, marker);
 };

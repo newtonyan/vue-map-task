@@ -1,30 +1,67 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import { Ref, onMounted, ref } from "vue";
+import { getCurrentGeolocation, updateMap } from "./utils.ts";
+import { Loader } from "@googlemaps/js-api-loader";
+
+const locationInput: Ref<string> = ref("");
+
+const searchLocation = () => {
+  console.log(locationInput.value);
+  if (!map.value) {
+    loadMapToDOM();
+  }
+};
+
+const getCurrentGelocationAndShowOnMap = async () => {
+  try {
+    const position = await getCurrentGeolocation();
+    if (typeof position === "string") throw new Error(position);
+
+    const mapOptions: google.maps.MapOptions = {
+      center: { lat: position.coords.latitude, lng: position.coords.longitude },
+      zoom: 12,
+    };
+    if (map.value) updateMap(map.value, mapOptions);
+  } catch (error) {
+    alert(error);
+  }
+};
+
+const loader = new Loader({
+  apiKey: import.meta.env.VITE_GOOGLE_MAP_API,
+  version: "weekly",
+});
+
+const map = ref<google.maps.Map>();
+
+const loadMapToDOM = (
+  options: google.maps.MapOptions = {
+    center: {
+      lat: 0,
+      lng: 0,
+    },
+    zoom: 4,
+  }
+) => {
+  console.log("Load google map to DOM");
+  // Load google map to DOM
+  loader.importLibrary("maps").then(({ Map }) => {
+    map.value = new Map(document.getElementById("map")!, options);
+  });
+};
+
+onMounted(() => {});
 </script>
 
 <template>
   <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <button @click="getCurrentGelocationAndShowOnMap">Get current location</button>
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <div>
+    <input type="text" v-model="locationInput" />
+    <button @click="searchLocation" :disabled="!locationInput">Search</button>
+  </div>
+  <div>Result for {{ locationInput }}</div>
+  <div id="map" class="w-full h-96"></div>
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+./utils.ts

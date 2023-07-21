@@ -7,21 +7,26 @@ const locationInput: Ref<string> = ref("");
 
 const searchLocation = () => {
   console.log(locationInput.value);
-  if (!map.value) {
-    loadMapToDOM();
-  }
+  loadMapToDOM();
 };
 
 const getCurrentGelocationAndShowOnMap = async () => {
   try {
+    loadMapToDOM();
+
     const position = await getCurrentGeolocation();
     if (typeof position === "string") throw new Error(position);
 
+    const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
     const mapOptions: google.maps.MapOptions = {
-      center: { lat: position.coords.latitude, lng: position.coords.longitude },
+      center: coords,
       zoom: 12,
     };
-    if (map.value) updateMap(map.value, mapOptions);
+
+    if (map.value) {
+      updateMap(map.value, mapOptions);
+      addMarkerToMap(map.value, coords);
+    }
   } catch (error) {
     alert(error);
   }
@@ -44,10 +49,17 @@ const loadMapToDOM = (
   }
 ) => {
   console.log("Load google map to DOM");
-  // Load google map to DOM
-  loader.importLibrary("maps").then(({ Map }) => {
-    map.value = new Map(document.getElementById("map")!, options);
-  });
+  // Load google map to DOM if map is not loaded yet
+  if (!map.value) {
+    loader.importLibrary("maps").then(({ Map }) => {
+      map.value = new Map(document.getElementById("map")!, options);
+    });
+  }
+};
+
+const addMarkerToMap = (map: google.maps.Map, position: google.maps.LatLngLiteral) => {
+  const marker = new google.maps.Marker({ position });
+  marker.setMap(map);
 };
 
 onMounted(() => {});

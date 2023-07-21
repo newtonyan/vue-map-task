@@ -50,12 +50,12 @@ const getCurrentGelocationAndShowOnMap = async () => {
   try {
     if (!isMapInited.value) await initMap();
 
-    const position = await getCurrentGeolocation();
-    if (typeof position === "string") throw new Error(position);
+    const currentLocation = await getCurrentGeolocation();
+    if (typeof currentLocation === "string") throw new Error(currentLocation);
 
-    const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+    const position = { lat: currentLocation.coords.latitude, lng: currentLocation.coords.longitude };
     const mapOptions: google.maps.MapOptions = {
-      center: coords,
+      center: position,
       zoom: 15,
     };
 
@@ -72,6 +72,11 @@ const search = async () => {
   try {
     if (!isMapInited.value) return; // TODO show error
     const mapLocation = await searchLocation(placesService, locationInputRef.value);
+
+    if (mapLocationDataRef.value.some((data) => data.id === mapLocation.id)) {
+      return alert("Location already existed!");
+    }
+
     addMarkerToMap(mapRef.value!, mapLocation, markers);
     updateMap(mapRef.value!, { center: mapLocation.position, zoom: 15 });
     mapLocationDataRef.value = [mapLocation, ...mapLocationDataRef.value];

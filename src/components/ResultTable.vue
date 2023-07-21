@@ -17,16 +17,11 @@ const emit = defineEmits(["delete"]);
 
 const INITIAL_PAGE_INDEX = 0;
 const goToPageNumber = ref(INITIAL_PAGE_INDEX + 1);
-const pageSizes = [5, 10, 20, 30, 40, 50];
 
 function handleGoToPage(e) {
   const page = e.target.value ? Number(e.target.value) - 1 : 0;
   goToPageNumber.value = page + 1;
   table.setPageIndex(page);
-}
-
-function handlePageSizeChange(e) {
-  table.setPageSize(Number(e.target.value));
 }
 
 const columnHelper = createColumnHelper<MapLocation>();
@@ -61,6 +56,11 @@ const table = useVueTable({
   columns,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  initialState: {
+    pagination: {
+      pageSize: 10,
+    },
+  },
 });
 
 const deleteRow = () => {
@@ -131,9 +131,6 @@ const deleteRow = () => {
         | Go to page:
         <input type="number" :value="goToPageNumber" @change="handleGoToPage" class="border p-1 rounded w-16" />
       </span>
-      <select :value="table.getState().pagination.pageSize" @change="handlePageSizeChange">
-        <option :key="pageSize" :value="pageSize" v-for="pageSize in pageSizes">Show {{ pageSize }}</option>
-      </select>
     </div>
     <div>{{ table.getRowModel().rows.length }} Rows</div>
   </div>

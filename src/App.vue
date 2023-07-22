@@ -42,7 +42,7 @@ const initMap = (
       lng: 0,
     },
     zoom: 4,
-    mapId: "c49317e9231c023",
+    mapId: import.meta.env.VITE_GOOGLE_MAP_ID,
   }
 ) => {
   return new Promise<void>((resolve, reject) => {

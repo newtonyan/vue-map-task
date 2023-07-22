@@ -90,12 +90,34 @@ const isDataEmpty = computed(() => {
         "
       >
         Delete
+        <span v-if="table.getSelectedRowModel().rows.length"
+          >({{ table.getSelectedRowModel().rows.length }})</span
+        >
       </button>
     </div>
 
     <div v-if="isDataEmpty">You haven't saved any location.</div>
 
     <ol class="mt-2 flex flex-col gap-2">
+      <li class="flex items-center gap-2">
+        <label
+          :for="`checkbox-select-all`"
+          class="flex flex-1 items-center gap-4 rounded-md border border-gray-300 bg-teal-600 px-3 py-2 shadow-sm"
+        >
+          <input
+            :id="`checkbox-select-all`"
+            class="rounded-md text-teal-600 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-teal-500"
+            type="checkbox"
+            :checked="table.getIsAllPageRowsSelected()"
+            :indeterminate="
+              table.getIsSomePageRowsSelected() &&
+              !table.getIsAllPageRowsSelected()
+            "
+            @change="() => table.toggleAllPageRowsSelected()"
+          />
+          <div class="text-sm font-semibold text-white">Select All</div>
+        </label>
+      </li>
       <li
         class="flex items-center gap-2"
         v-for="row in table.getRowModel().rows"
@@ -113,7 +135,7 @@ const isDataEmpty = computed(() => {
         >
           <input
             :id="`checkbox-${row.original.id}`"
-            class="rounded-md text-teal-500 focus:ring-teal-500"
+            class="rounded-md text-teal-500 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-teal-500"
             :key="row.original.id"
             type="checkbox"
             :checked="row.getIsSelected()"
@@ -149,28 +171,48 @@ const isDataEmpty = computed(() => {
       <div class="space-x-2">
         <button
           class="h-9 w-9 border border-gray-300 bg-white"
-          @click="() => table.setPageIndex(0)"
+          @click="
+            () => {
+              table.setPageIndex(0);
+              table.resetRowSelection();
+            }
+          "
           :disabled="!table.getCanPreviousPage()"
         >
           «
         </button>
         <button
           class="h-9 w-9 border border-gray-300 bg-white"
-          @click="() => table.previousPage()"
+          @click="
+            () => {
+              table.previousPage();
+              table.resetRowSelection();
+            }
+          "
           :disabled="!table.getCanPreviousPage()"
         >
           ‹
         </button>
         <button
           class="h-9 w-9 border border-gray-300 bg-white"
-          @click="() => table.nextPage()"
+          @click="
+            () => {
+              table.nextPage();
+              table.resetRowSelection();
+            }
+          "
           :disabled="!table.getCanNextPage()"
         >
           ›
         </button>
         <button
           class="h-9 w-9 border border-gray-300 bg-white"
-          @click="() => table.setPageIndex(table.getPageCount() - 1)"
+          @click="
+            () => {
+              table.setPageIndex(table.getPageCount() - 1);
+              table.resetRowSelection();
+            }
+          "
           :disabled="!table.getCanNextPage()"
         >
           »

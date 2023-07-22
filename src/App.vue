@@ -171,7 +171,7 @@ onMounted(async () => {
   <main>
     <div class="flex h-screen flex-col-reverse lg:flex-row">
       <aside
-        class="flex h-full w-full flex-col justify-between border-r border-gray-300 bg-gray-50 lg:w-[40rem]"
+        class="flex h-full w-full flex-col justify-between overflow-y-scroll border-r border-gray-300 bg-gray-50 lg:w-[40rem]"
       >
         <div class="px-8 py-4">
           <img src="./assets/vue.svg" class="mb-4 h-12 w-12" alt="Vue logo" />
@@ -238,7 +238,6 @@ onMounted(async () => {
           </button>
         </div>
       </aside>
-
       <div id="map" class="h-96 w-full lg:h-full"></div>
     </div>
   </main>

@@ -17,32 +17,20 @@ const props = defineProps<{
 
 const emit = defineEmits(["delete"]);
 
+const deleteRow = () => {
+  emit(
+    "delete",
+    table.getSelectedRowModel().rows.map((row) => row.original.id),
+    table.resetRowSelection
+  );
+};
+
 const columnHelper = createColumnHelper<MapLocation>();
 
 const columns = [
-  // columnHelper.accessor("id", {
-  //   cell: (info) => info.getValue(),
-  //   footer: (props) => props.column.id,
-  // }),
   columnHelper.accessor("name", {
     cell: (info) => info.getValue(),
   }),
-  // columnHelper.accessor((row) => row.position.lat, {
-  //   id: "latitude",
-  //   cell: (info) => info.getValue(),
-  //   header: () => "Latitude",
-  // }),
-  // columnHelper.accessor((row) => row.position.lng, {
-  //   id: "longitude",
-  //   cell: (info) => info.getValue(),
-  //   header: () => "Longitude",
-  //   footer: (props) => props.column.id,
-  // }),
-  // columnHelper.accessor((row) => row.utc_offset_minutes, {
-  //   id: "utc_offset_minutes",
-  //   cell: (info) => utcOffsetToString(info.getValue()),
-  //   header: () => "Longitude",
-  // }),
 ];
 
 const table = useVueTable({
@@ -59,15 +47,7 @@ const table = useVueTable({
   },
 });
 
-const deleteRow = () => {
-  console.log(table.getSelectedRowModel().rows);
-  emit(
-    "delete",
-    table.getSelectedRowModel().rows.map((row) => row.original.id),
-    table.resetRowSelection
-  );
-};
-
+/* Computed */
 const isDataEmpty = computed(() => {
   return table.getCoreRowModel().rows.length <= 0;
 });
@@ -218,11 +198,6 @@ const isDataEmpty = computed(() => {
           »
         </button>
       </div>
-      <!-- <span class="flex items-center gap-1">
-          | Go to page:
-          <input type="number" :value="goToPageNumber" @change="handleGoToPage" class="border p-1 rounded w-16" />
-        </span> -->
     </div>
-    <!-- <div>{{ table.getRowModel().rows.length }} Rows</div> -->
   </div>
 </template>

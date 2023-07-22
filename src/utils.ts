@@ -4,13 +4,13 @@ export const getCurrentGeolocation = () => {
   const isSupported = "navigator" in window && "geolocation" in navigator;
 
   return new Promise<GeolocationPosition | string>((resolve, reject) => {
-    if (!isSupported) return reject("Geolocation not supported!");
+    if (!isSupported) return reject(new Error("Geolocation not supported!"));
     navigator.geolocation.getCurrentPosition(
       (position: GeolocationPosition) => {
         return resolve(position);
       },
       (error: GeolocationPositionError) => {
-        return reject(error.message);
+        return reject(new Error(error.message));
       }
     );
   });
@@ -28,7 +28,7 @@ export const searchLocation = (
   query: string
 ) => {
   return new Promise<MapLocation>((resolve, reject) => {
-    if (!placesService) return reject(null); //TODO show error
+    if (!placesService) return reject(new Error("Place Service is null"));
 
     const request: google.maps.places.FindPlaceFromQueryRequest = {
       query: query,
@@ -41,46 +41,40 @@ export const searchLocation = (
         results: Array<google.maps.places.PlaceResult> | null,
         status: google.maps.places.PlacesServiceStatus
       ) => {
-        console.log(results);
+        if (status !== google.maps.places.PlacesServiceStatus.OK)
+          return reject(new Error("Find Place Error!"));
+        if (!results || !results.length) return reject(new Error("No result!"));
         if (
-          status === google.maps.places.PlacesServiceStatus.OK &&
-          results &&
-          results.length &&
-          results[0].geometry &&
-          results[0].geometry.location &&
-          results[0].name &&
-          results[0].place_id
-        ) {
-          // Assumption: use first result
-          const location = results[0].geometry.location;
-          const name = results[0].name;
-          const placeId = results[0].place_id;
-          placesService.getDetails(
-            { placeId, fields: ["utc_offset_minutes"] },
-            (
-              result: google.maps.places.PlaceResult | null,
-              status: google.maps.places.PlacesServiceStatus
-            ) => {
-              if (
-                status === google.maps.places.PlacesServiceStatus.OK &&
-                result &&
-                result.utc_offset_minutes
-              ) {
-                console.log(result);
-                resolve({
-                  id: placeId,
-                  name: name,
-                  position: location.toJSON(),
-                  utc_offset_minutes: result.utc_offset_minutes,
-                });
-              }
-            }
-          );
-        } else {
-          // TODO show no result
-          alert("No result");
-          reject();
-        }
+          !results[0].geometry ||
+          !results[0].geometry.location ||
+          !results[0].name ||
+          !results[0].place_id
+        )
+          return reject(new Error("Result missing info!"));
+
+        // Assumption: use first result
+        const location = results[0].geometry.location;
+        const name = results[0].name;
+        const placeId = results[0].place_id;
+        placesService.getDetails(
+          { placeId, fields: ["utc_offset_minutes"] },
+          (
+            result: google.maps.places.PlaceResult | null,
+            status: google.maps.places.PlacesServiceStatus
+          ) => {
+            if (status !== google.maps.places.PlacesServiceStatus.OK || !result)
+              return reject(new Error("Get Details Error!"));
+            if (!result.utc_offset_minutes)
+              return reject(new Error("Get Details missing info!"));
+
+            return resolve({
+              id: placeId,
+              name: name,
+              position: location.toJSON(),
+              utc_offset_minutes: result.utc_offset_minutes,
+            });
+          }
+        );
       }
     );
   });

@@ -82,15 +82,19 @@ const getCurrentGelocationAndShowOnMap = async () => {
     if (isMapInited.value) {
       updateMap(mapRef.value!, mapOptions);
     }
-  } catch (error) {
-    alert(error);
+  } catch (error: any) {
+    if (error instanceof Error) {
+      alert(error.message);
+    } else {
+      alert(error);
+    }
   }
 };
 
 const search = async () => {
   if (!isMapInited.value) await initMap();
   try {
-    if (!isMapInited.value) return; // TODO show error
+    if (!isMapInited.value) throw new Error("Map not found!");
     isSearching.value = true;
     const mapLocation = await searchLocation(
       placesService,
@@ -105,7 +109,12 @@ const search = async () => {
     updateMap(mapRef.value!, { center: mapLocation.position, zoom: 15 });
     mapLocationDataRef.value = [mapLocation, ...mapLocationDataRef.value];
     locationInputRef.value = "";
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof Error) {
+      alert(error.message);
+    } else {
+      alert("Something went wrong!");
+    }
   } finally {
     isSearching.value = false;
   }

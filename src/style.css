@@ -1,3 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  [type="text"]:not(.custom),
+  [type="email"]:not(.custom),
+  [type="url"]:not(.custom),
+  [type="password"]:not(.custom),
+  [type="number"]:not(.custom),
+  [type="date"]:not(.custom),
+  [type="datetime-local"]:not(.custom),
+  [type="month"]:not(.custom),
+  [type="search"]:not(.custom),
+  [type="tel"]:not(.custom),
+  [type="time"]:not(.custom),
+  [type="week"]:not(.custom),
+  [multiple]:not(.custom),
+  textarea:not(.custom),
+  select:not(.custom) {
+    @apply flex h-9 w-full rounded-md border border-gray-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500  disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  button {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500 disabled:pointer-events-none disabled:opacity-50;
+  }
+}

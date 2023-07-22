@@ -29,18 +29,24 @@ const columns = [
     cell: (info) => info.getValue(),
     footer: (props) => props.column.id,
   }),
-  // columnHelper.accessor((row) => row.position.lat, {
-  //   id: "latitude",
-  //   cell: (info) => info.getValue(),
-  //   header: () => "Latitude",
-  //   footer: (props) => props.column.id,
-  // }),
+  columnHelper.accessor((row) => row.position.lat, {
+    id: "latitude",
+    cell: (info) => info.getValue(),
+    header: () => "Latitude",
+    footer: (props) => props.column.id,
+  }),
   // columnHelper.accessor((row) => row.position.lng, {
   //   id: "longitude",
   //   cell: (info) => info.getValue(),
   //   header: () => "Longitude",
   //   footer: (props) => props.column.id,
   // }),
+  columnHelper.accessor((row) => row.utc_offset_minutes, {
+    id: "utc_offset_minutes",
+    cell: (info) => info.getValue(),
+    header: () => "Longitude",
+    footer: (props) => props.column.id,
+  }),
 ];
 
 const table = useVueTable({
@@ -92,7 +98,7 @@ const deleteRow = () => {
       >
         <label
           :for="`checkbox-${row.original.id}`"
-          class="flex flex-1 items-center gap-2 rounded-md border border-gray-300 bg-white p-3 text-sm font-semibold shadow-sm hover:bg-teal-50 [&:has(input:checked)]:border-teal-500 [&:has(input:checked)]:ring-1 [&:has(input:checked)]:ring-teal-500"
+          class="flex flex-1 items-center gap-4 rounded-md border border-gray-300 bg-white p-3 shadow-sm hover:bg-teal-50 [&:has(input:checked)]:border-teal-500 [&:has(input:checked)]:ring-1 [&:has(input:checked)]:ring-teal-500"
           @click="
             updateMap(map, {
               center: row.original.position,
@@ -111,11 +117,17 @@ const deleteRow = () => {
                 row.toggleSelected((event.target as HTMLInputElement).checked)
             "
           />
-          <div v-for="cell in row.getVisibleCells()" :key="cell.id">
-            <FlexRender
-              :render="cell.column.columnDef.cell"
-              :props="cell.getContext()"
-            />
+          <div class="text-sm">
+            <div
+              class="first:font-semibold"
+              v-for="cell in row.getVisibleCells()"
+              :key="cell.id"
+            >
+              <FlexRender
+                :render="cell.column.columnDef.cell"
+                :props="cell.getContext()"
+              />
+            </div>
           </div>
         </label>
       </li>

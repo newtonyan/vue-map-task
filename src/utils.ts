@@ -16,11 +16,17 @@ export const getCurrentGeolocation = () => {
   });
 };
 
-export const updateMap = (map: google.maps.Map, options: google.maps.MapOptions) => {
+export const updateMap = (
+  map: google.maps.Map,
+  options: google.maps.MapOptions
+) => {
   map.setOptions(options);
 };
 
-export const searchLocation = (placesService: google.maps.places.PlacesService, query: string) => {
+export const searchLocation = (
+  placesService: google.maps.places.PlacesService,
+  query: string
+) => {
   return new Promise<MapLocation>((resolve, reject) => {
     if (!placesService) return reject(null); //TODO show error
 
@@ -31,7 +37,10 @@ export const searchLocation = (placesService: google.maps.places.PlacesService, 
 
     placesService.findPlaceFromQuery(
       request,
-      (results: Array<google.maps.places.PlaceResult> | null, status: google.maps.places.PlacesServiceStatus) => {
+      (
+        results: Array<google.maps.places.PlaceResult> | null,
+        status: google.maps.places.PlacesServiceStatus
+      ) => {
         console.log(results);
         if (
           status === google.maps.places.PlacesServiceStatus.OK &&
@@ -45,7 +54,27 @@ export const searchLocation = (placesService: google.maps.places.PlacesService, 
           // Assumption: use first result
           const location = results[0].geometry.location;
           const name = results[0].name;
-          resolve({ id: results[0].place_id, name: name, position: location.toJSON() });
+          const placeId = results[0].place_id;
+          placesService.getDetails(
+            { placeId, fields: ["utc_offset_minutes"] },
+            (
+              result: google.maps.places.PlaceResult | null,
+              status: google.maps.places.PlacesServiceStatus
+            ) => {
+              if (
+                status === google.maps.places.PlacesServiceStatus.OK &&
+                result &&
+                result.utc_offset_minutes
+              ) {
+                resolve({
+                  id: placeId,
+                  name: name,
+                  position: location.toJSON(),
+                  utc_offset_minutes: result.utc_offset_minutes,
+                });
+              }
+            }
+          );
         } else {
           // TODO show no result
           alert("No result");

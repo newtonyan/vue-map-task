@@ -56,7 +56,7 @@ export const searchLocation = (
           const name = results[0].name;
           const placeId = results[0].place_id;
           placesService.getDetails(
-            { placeId, fields: ["all"] },
+            { placeId, fields: ["utc_offset_minutes"] },
             (
               result: google.maps.places.PlaceResult | null,
               status: google.maps.places.PlacesServiceStatus

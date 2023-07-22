@@ -137,28 +137,28 @@ const deleteRow = () => {
       </span>
       <div class="space-x-2">
         <button
-          class="h-9 w-9 border border-gray-300"
+          class="h-9 w-9 border border-gray-300 bg-white"
           @click="() => table.setPageIndex(0)"
           :disabled="!table.getCanPreviousPage()"
         >
           «
         </button>
         <button
-          class="h-9 w-9 border border-gray-300"
+          class="h-9 w-9 border border-gray-300 bg-white"
           @click="() => table.previousPage()"
           :disabled="!table.getCanPreviousPage()"
         >
           ‹
         </button>
         <button
-          class="h-9 w-9 border border-gray-300"
+          class="h-9 w-9 border border-gray-300 bg-white"
           @click="() => table.nextPage()"
           :disabled="!table.getCanNextPage()"
         >
           ›
         </button>
         <button
-          class="h-9 w-9 border border-gray-300"
+          class="h-9 w-9 border border-gray-300 bg-white"
           @click="() => table.setPageIndex(table.getPageCount() - 1)"
           :disabled="!table.getCanNextPage()"
         >

@@ -12,6 +12,7 @@ import { MapLocation } from "./types";
 import { MapPinIcon } from "@heroicons/vue/24/outline";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 dayjs.extend(utc);
 
 /* Ref */
@@ -20,6 +21,9 @@ const locationInputRef: Ref<string> = ref("");
 const mapLocationDataRef = ref<Array<MapLocation>>([]);
 const now = ref("Loading...");
 const isSearching = ref(false);
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = breakpoints.greater("lg");
 
 /* Constant / Variable */
 let placesService: google.maps.places.PlacesService;
@@ -169,9 +173,9 @@ onMounted(async () => {
 
 <template>
   <main>
-    <div class="flex h-screen flex-col-reverse lg:flex-row">
+    <div class="flex flex-col lg:h-screen lg:flex-row">
       <aside
-        class="flex h-full w-full flex-col justify-between overflow-y-scroll border-r border-gray-300 bg-gray-50 lg:w-[40rem]"
+        class="flex h-2/3 w-full flex-col justify-between border-r border-gray-300 bg-gray-50 lg:h-full lg:w-[40rem] lg:overflow-y-auto"
       >
         <div class="px-8 py-4">
           <img src="./assets/vue.svg" class="mb-4 h-12 w-12" alt="Vue logo" />
@@ -207,6 +211,14 @@ onMounted(async () => {
               <span>Search</span>
             </button>
           </div>
+          <div class="portal mt-8 block h-96 w-full lg:hidden"></div>
+          <button
+            class="mt-4 h-9 w-full gap-1 bg-gray-200 px-4 py-2 hover:bg-gray-200/80"
+            @click="getCurrentGelocationAndShowOnMap"
+          >
+            <MapPinIcon class="h-5 w-5" />
+            Current Location
+          </button>
           <div>
             <h2 class="mt-4 text-lg font-bold leading-10">Local Time</h2>
             <div v-if="!isDataEmpty">
@@ -228,17 +240,11 @@ onMounted(async () => {
             @delete="deleteMapLocationData"
           />
         </div>
-        <div class="px-8 py-4">
-          <button
-            class="h-9 w-full gap-1 bg-gray-200 px-4 py-2 hover:bg-gray-200/80"
-            @click="getCurrentGelocationAndShowOnMap"
-          >
-            <MapPinIcon class="h-5 w-5" />
-            Current Location
-          </button>
-        </div>
       </aside>
-      <div id="map" class="h-96 w-full lg:h-full"></div>
+      <div class="portal-desktop hidden h-96 w-full lg:block lg:h-full"></div>
     </div>
   </main>
+  <Teleport :to="isDesktop ? '.portal-desktop' : '.portal'">
+    <div id="map" class="h-96 w-full lg:h-full"></div>
+  </Teleport>
 </template>

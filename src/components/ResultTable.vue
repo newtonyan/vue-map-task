@@ -161,7 +161,7 @@ const isDataEmpty = computed(() => {
     </ol>
     <div
       v-if="!isDataEmpty"
-      class="mt-4 flex items-center justify-between gap-2"
+      class="mt-4 flex flex-wrap items-center justify-between gap-2"
     >
       <span class="flex items-center gap-1 text-sm font-semibold">
         <div>Page</div>

@@ -173,9 +173,9 @@ onMounted(async () => {
 
 <template>
   <main>
-    <div class="flex flex-col lg:h-screen lg:flex-row">
+    <div class="flex min-h-screen flex-col lg:h-screen lg:flex-row">
       <aside
-        class="flex h-2/3 w-full flex-col justify-between border-r border-gray-300 bg-gray-50 lg:h-full lg:w-[40rem] lg:overflow-y-auto"
+        class="flex h-full w-full flex-1 flex-col justify-between border-r border-gray-300 bg-gray-50 lg:w-[40rem] lg:flex-auto lg:overflow-y-auto"
       >
         <div class="px-8 py-4">
           <img src="./assets/vue.svg" class="mb-4 h-12 w-12" alt="Vue logo" />

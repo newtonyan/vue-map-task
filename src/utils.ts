@@ -56,7 +56,7 @@ export const searchLocation = (
           const name = results[0].name;
           const placeId = results[0].place_id;
           placesService.getDetails(
-            { placeId, fields: ["utc_offset_minutes"] },
+            { placeId, fields: ["all"] },
             (
               result: google.maps.places.PlaceResult | null,
               status: google.maps.places.PlacesServiceStatus
@@ -66,6 +66,7 @@ export const searchLocation = (
                 result &&
                 result.utc_offset_minutes
               ) {
+                console.log(result);
                 resolve({
                   id: placeId,
                   name: name,
@@ -93,4 +94,10 @@ export const addMarkerToMap = (
   const marker = new google.maps.Marker({ position: mapLocation.position });
   marker.setMap(map);
   markers.set(mapLocation.id, marker);
+};
+
+export const utcOffsetToString = (offset: number) => {
+  const hour = String(Math.floor(Math.abs(offset) / 60)).padStart(2, "0");
+  const minutes = String(Math.abs(offset) % 60).padStart(2, "0");
+  return offset < 0 ? `-${hour}:${minutes}` : `+${hour}:${minutes}`;
 };

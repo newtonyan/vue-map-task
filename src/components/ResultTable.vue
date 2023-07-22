@@ -7,9 +7,8 @@ import {
   getPaginationRowModel,
 } from "@tanstack/vue-table";
 import { MapLocation } from "../types";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { updateMap } from "../utils";
-import { TrashIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
   data: Array<MapLocation>;
@@ -27,26 +26,23 @@ const columns = [
   // }),
   columnHelper.accessor("name", {
     cell: (info) => info.getValue(),
-    footer: (props) => props.column.id,
   }),
-  columnHelper.accessor((row) => row.position.lat, {
-    id: "latitude",
-    cell: (info) => info.getValue(),
-    header: () => "Latitude",
-    footer: (props) => props.column.id,
-  }),
+  // columnHelper.accessor((row) => row.position.lat, {
+  //   id: "latitude",
+  //   cell: (info) => info.getValue(),
+  //   header: () => "Latitude",
+  // }),
   // columnHelper.accessor((row) => row.position.lng, {
   //   id: "longitude",
   //   cell: (info) => info.getValue(),
   //   header: () => "Longitude",
   //   footer: (props) => props.column.id,
   // }),
-  columnHelper.accessor((row) => row.utc_offset_minutes, {
-    id: "utc_offset_minutes",
-    cell: (info) => info.getValue(),
-    header: () => "Longitude",
-    footer: (props) => props.column.id,
-  }),
+  // columnHelper.accessor((row) => row.utc_offset_minutes, {
+  //   id: "utc_offset_minutes",
+  //   cell: (info) => utcOffsetToString(info.getValue()),
+  //   header: () => "Longitude",
+  // }),
 ];
 
 const table = useVueTable({
@@ -80,12 +76,12 @@ const isDataEmpty = computed(() => {
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <span class="text-lg font-bold leading-10">
+      <h2 class="text-lg font-bold leading-10">
         Saved
         <template v-if="!isDataEmpty"
           >({{ table.getCoreRowModel().rows.length }})</template
         >
-      </span>
+      </h2>
       <button
         class="h-8 rounded-md px-3 hover:bg-gray-200/80"
         @click="deleteRow"

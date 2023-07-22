@@ -1,30 +1,24 @@
 <script setup lang="ts">
-import {
-  Ref,
-  computed,
-  onMounted,
-  reactive,
-  ref,
-  toRefs,
-  watch,
-  watchEffect,
-} from "vue";
+import { Ref, computed, onMounted, ref, watchEffect } from "vue";
 import {
   addMarkerToMap,
   getCurrentGeolocation,
   updateMap,
   searchLocation,
-  deleteMarker,
 } from "./utils.ts";
 import { Loader } from "@googlemaps/js-api-loader";
 import ResultTable from "./components/ResultTable.vue";
 import { MapLocation } from "./types";
 import { MapPinIcon } from "@heroicons/vue/24/outline";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 /* Ref */
 const mapRef = ref<google.maps.Map>();
 const locationInputRef: Ref<string> = ref("");
 const mapLocationDataRef = ref<Array<MapLocation>>([]);
+const now = ref("Loading...");
 
 /* Constant / Variable */
 let placesService: google.maps.places.PlacesService;
@@ -128,6 +122,14 @@ const isMapInited = computed(() => {
   return Boolean(mapRef && mapRef.value && placesService);
 });
 
+const lastSearchedLocationTimezone = computed(() => {
+  return mapLocationDataRef?.value?.[0]?.utc_offset_minutes;
+});
+
+const isDataEmpty = computed(() => {
+  return !mapLocationDataRef.value || !mapLocationDataRef.value.length;
+});
+
 onMounted(async () => {
   await initMap();
 
@@ -149,6 +151,12 @@ onMounted(async () => {
       JSON.stringify(mapLocationDataRef.value)
     );
   });
+
+  setInterval(() => {
+    now.value = dayjs()
+      .utcOffset(lastSearchedLocationTimezone.value)
+      .format("YYYY-MM-DD HH:mm:ss UTCZ");
+  }, 1000);
 });
 </script>
 
@@ -176,6 +184,19 @@ onMounted(async () => {
               Search
             </button>
           </div>
+          <div>
+            <h2 class="mt-4 text-lg font-bold leading-10">Local Time</h2>
+            <div v-if="!isDataEmpty">
+              <p>{{ mapLocationDataRef[0]?.name }}</p>
+              <p>{{ now }}</p>
+            </div>
+            <div v-if="isDataEmpty">
+              <p>
+                You haven't saved any location. This will show the local time
+                and timezone of your latest searched location.
+              </p>
+            </div>
+          </div>
           <ResultTable
             class="mt-4"
             v-if="mapLocationDataRef && mapRef"
@@ -190,7 +211,7 @@ onMounted(async () => {
             @click="getCurrentGelocationAndShowOnMap"
           >
             <MapPinIcon class="h-5 w-5" />
-            Your Location
+            Current Location
           </button>
         </div>
       </aside>

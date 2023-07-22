@@ -178,7 +178,7 @@ onMounted(async () => {
           </div>
           <ResultTable
             class="mt-4"
-            v-if="mapLocationDataRef.length && mapRef"
+            v-if="mapLocationDataRef && mapRef"
             :data="mapLocationDataRef"
             :map="mapRef"
             @delete="deleteMapLocationData"

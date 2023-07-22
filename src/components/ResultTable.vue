@@ -7,7 +7,7 @@ import {
   getPaginationRowModel,
 } from "@tanstack/vue-table";
 import { MapLocation } from "../types";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { updateMap } from "../utils";
 import { TrashIcon } from "@heroicons/vue/24/outline";
 
@@ -71,13 +71,20 @@ const deleteRow = () => {
     table.resetRowSelection
   );
 };
+
+const isDataEmpty = computed(() => {
+  return table.getCoreRowModel().rows.length <= 0;
+});
 </script>
 
 <template>
   <div>
     <div class="flex items-center justify-between">
       <span class="text-lg font-bold leading-10">
-        Saved ({{ table.getCoreRowModel().rows.length }})
+        Saved
+        <template v-if="!isDataEmpty"
+          >({{ table.getCoreRowModel().rows.length }})</template
+        >
       </span>
       <button
         class="h-8 rounded-md px-3 hover:bg-gray-200/80"
@@ -89,6 +96,8 @@ const deleteRow = () => {
         Delete
       </button>
     </div>
+
+    <div v-if="isDataEmpty">You haven't saved any location.</div>
 
     <ol class="mt-2 flex flex-col gap-2">
       <li
@@ -132,7 +141,10 @@ const deleteRow = () => {
         </label>
       </li>
     </ol>
-    <div class="mt-4 flex items-center justify-between gap-2">
+    <div
+      v-if="!isDataEmpty"
+      class="mt-4 flex items-center justify-between gap-2"
+    >
       <span class="flex items-center gap-1 text-sm font-semibold">
         <div>Page</div>
         {{ table.getState().pagination.pageIndex + 1 }} of

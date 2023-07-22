@@ -13,7 +13,7 @@ This repo is created for the Pre-Interview Task for the Web Developer position a
 5. Display the time zone and local time of the latest searched location.
 
 ## Developing
-You should duplicate `.env.example` and remove the duplicate to `.env`. Fill in the required variables.
+You should duplicate `.env.example` and rename the duplicate to `.env`. Then fill in the required variables.
 
 Once you've filled in the environment varialbes and installed dependencies with `pnpm install`, start a development server:
 

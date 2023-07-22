@@ -18,15 +18,6 @@ const props = defineProps<{
 
 const emit = defineEmits(["delete"]);
 
-const INITIAL_PAGE_INDEX = 0;
-const goToPageNumber = ref(INITIAL_PAGE_INDEX + 1);
-
-function handleGoToPage(e) {
-  const page = e.target.value ? Number(e.target.value) - 1 : 0;
-  goToPageNumber.value = page + 1;
-  table.setPageIndex(page);
-}
-
 const columnHelper = createColumnHelper<MapLocation>();
 
 const columns = [

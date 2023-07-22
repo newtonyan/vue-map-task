@@ -25,3 +25,13 @@ pnpm run dev
 1. Vue
 2. Tailwind Css
 3. Heroicons
+
+## Features
+1. Responsive UI
+2. Saved location will be store in local storage of the browser
+
+## Future Improvements
+I am aware that there are some missing pieces, but unfortunately, it will not be completed within this short timeframe.
+1. Use toast to display error message
+2. Add confirm dialog before deleting location
+3. Autocomplete when searching for location

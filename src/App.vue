@@ -104,6 +104,7 @@ const search = async () => {
     addMarkerToMap(mapRef.value!, mapLocation, markers);
     updateMap(mapRef.value!, { center: mapLocation.position, zoom: 15 });
     mapLocationDataRef.value = [mapLocation, ...mapLocationDataRef.value];
+    locationInputRef.value = "";
   } catch (error) {}
 };
 
@@ -165,6 +166,7 @@ onMounted(async () => {
               v-model="locationInputRef"
               class="h-8 w-full rounded-lg"
               placeholder="Search location"
+              @keyup.enter="search"
             />
             <button
               class="h-9 bg-teal-500 px-4 py-2 text-white hover:bg-teal-500/90"

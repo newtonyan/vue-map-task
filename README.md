@@ -1,6 +1,6 @@
 # Vue 3 + TypeScript + Vite
 
-This repo is created for the Pre-Interview Task for the Web Developer position at Accuenergy Canada Inc.
+This repo is created for the Pre-Interview Task for the Web Developer position.
 
 ## Requirement
 1. A button to allow users to acquire their current location from their browser.
